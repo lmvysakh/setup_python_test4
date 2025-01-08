@@ -1,0 +1,25 @@
+name: Python workflow test for azure artifacts connection
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      # Step 2: Set up python
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+          cache-dependency-path: requirements*.txt
+      
+      - name: Install dependencies from Azure 
+        env:
+          AZURE_ARTIFACTS_PAT: ${{ secrets.AZURE_ARTIFACTS_PAT }}
+          run: |
+            pip install --upgrade pip
+            pip config set global.extra-index-url "https://${AZURE_ARTIFACTS_PAT}:@pkgs.dev.azure.com/your_organization/your_project/_packaging/your_feed/pypi/simple/"
+            pip install -r requirements.txt
+      
